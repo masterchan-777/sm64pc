@@ -429,8 +429,8 @@ ifeq ($(TARGET_SWITCH),1)
   NXARCH := -march=armv8-a+crc+crypto -mtune=cortex-a57 -mtp=soft -fPIC -ftls-model=local-exec
   APP_TITLE := Super Mario 64
   APP_AUTHOR := Nintendo, n64decomp team, sm64pc team
-  APP_VERSION := 1_master_$(VERSION)
-  APP_ICON := nx_icon.jpg
+  APP_VERSION := 4.0.1
+  APP_ICON := ./sm64_icon.jpg
   INCLUDE_CFLAGS += -isystem$(LIBNX)/include -I$(PORTLIBS)/include
 endif
 
@@ -803,7 +803,7 @@ ifeq ($(TARGET_SWITCH), 1)
 
 # add `--icon=$(APP_ICON)` to this when we get a suitable icon
 %.nro: %.stripped %.nacp
-	@elf2nro $< $@ --nacp=$*.nacp
+	@elf2nro $< $@ --nacp=$*.nacp --icon=$(APP_ICON)
 	@echo built ... $(notdir $@)
 
 %.nacp:
