@@ -227,11 +227,15 @@ static struct Option optsControls[] = {
     DEF_OPT_BIND( bindStr[15], configKeyStickRight ),
 };
 
-static struct Option optsVideo[] = {
+static struct Option optsVideo[] = {  //disable unneeded display options for Switch
+	#ifndef TARGET_SWITCH
     DEF_OPT_TOGGLE( optsVideoStr[0], &configWindow.fullscreen ),
-    DEF_OPT_CHOICE( optsVideoStr[5], &configWindow.vsync, vsyncChoices ),
+	DEF_OPT_CHOICE( optsVideoStr[5], &configWindow.vsync, vsyncChoices ),
+	#endif
     DEF_OPT_CHOICE( optsVideoStr[1], &configFiltering, filterChoices ),
+	#ifndef TARGET_SWITCH
     DEF_OPT_BUTTON( optsVideoStr[4], optvideo_reset_window ),
+	#endif
 };
 
 static struct Option optsAudio[] = {
@@ -267,9 +271,12 @@ static struct Option optsMain[] = {
     DEF_OPT_SUBMENU( menuStr[5], &menuControls ),
     DEF_OPT_SUBMENU( menuStr[6], &menuVideo ),
     DEF_OPT_SUBMENU( menuStr[7], &menuAudio ),
-    DEF_OPT_BUTTON ( menuStr[8], optmenu_act_exit ),
-    // NOTE: always keep cheats the last option here because of the half-assed way I toggle them
+	DEF_OPT_SUBMENU( menuStr[9], &menuCheats ),  // moved cheats menu up for Switch
+    DEF_OPT_BUTTON ( menuStr[8], optmenu_act_exit )
+    /* moved cheats menu up for Switch
+	// NOTE: always keep cheats the last option here because of the half-assed way I toggle them
     DEF_OPT_SUBMENU( menuStr[9], &menuCheats )
+	*/
 };
 
 static struct SubMenu menuMain = DEF_SUBMENU( menuStr[3], optsMain );
@@ -460,7 +467,9 @@ void optmenu_toggle(void) {
         play_sound(SOUND_MENU_CHANGE_SELECT, gDefaultSoundArgs);
         #endif
 
-        // HACK: hide the last option in main if cheats are disabled
+        // Always enable cheats menu for Switch
+		/*
+		// HACK: hide the last option in main if cheats are disabled
         menuMain.numOpts = sizeof(optsMain) / sizeof(optsMain[0]);
         if (!Cheats.EnableCheats) {
             menuMain.numOpts--;
@@ -469,7 +478,7 @@ void optmenu_toggle(void) {
                 menuMain.scroll = 0;
             }
         }
-
+        */
         currentMenu = &menuMain;
         optmenu_open = 1;
     } else {
