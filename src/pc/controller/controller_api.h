@@ -5,13 +5,10 @@
 #define VK_INVALID 0xFFFF
 #define VK_SIZE 0x1000
 
-// Analog camera movement by Pathétique (github.com/vrmiguel), y0shin and Mors
-// Contribute or communicate bugs at github.com/vrmiguel/sm64-analog-camera
-
 #include <ultra64.h>
 
 struct ControllerAPI {
-    const u32 vkbase;             // base number in the virtual keyspace (e.g. keyboard is 0x0000-0x1000)
+   const u32 vkbase;             // base number in the virtual keyspace (e.g. keyboard is 0x0000-0x1000)
     void (*init)(void);           // call once, also calls reconfig()
     void (*read)(OSContPad *pad); // read controller and update N64 pad values
     u32  (*rawkey)(void);         // returns last pressed virtual key or VK_INVALID if none
@@ -22,6 +19,7 @@ struct ControllerAPI {
 // used for binding keys
 u32 controller_get_raw_key(void);
 void controller_reconfigure(void);
+
 // calls the shutdown() function of all controller subsystems
 void controller_shutdown(void);
 

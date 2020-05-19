@@ -9,9 +9,12 @@
 // Contribute or communicate bugs at github.com/vrmiguel/sm64-analog-camera
 
 #include <ultra64.h>
+
 #include "controller_api.h"
 #include "controller_sdl.h"
 #include "../configfile.h"
+
+#include "game/level_update.h"
 
 // mouse buttons are also in the controller namespace (why), just offset 0x100
 #define VK_OFS_SDL_MOUSE 0x0100
@@ -31,6 +34,7 @@ extern u8 newcam_mouse;
 
 static bool init_ok;
 static SDL_GameController *sdl_cntrl;
+
 
 static u32 num_joy_binds = 0;
 static u32 num_mouse_binds = 0;
@@ -94,14 +98,16 @@ static void controller_sdl_init(void) {
 }
 
 static void controller_sdl_read(OSContPad *pad) {
-    if (!init_ok) return;
+    if (!init_ok) {
+        return;
+    }
 
 #ifdef BETTERCAMERA
-    if (newcam_mouse == 1)
+    if (newcam_mouse == 1 && sCurrPlayMode != 2)
         SDL_SetRelativeMouseMode(SDL_TRUE);
     else
         SDL_SetRelativeMouseMode(SDL_FALSE);
-
+    
     u32 mouse = SDL_GetRelativeMouseState(&mouse_x, &mouse_y);
 
     for (u32 i = 0; i < num_mouse_binds; ++i)
@@ -111,6 +117,7 @@ static void controller_sdl_read(OSContPad *pad) {
     // remember buttons that changed from 0 to 1
     last_mouse = (mouse_buttons ^ mouse) & mouse;
     mouse_buttons = mouse;
+    
 #endif
 
     SDL_GameControllerUpdate();
@@ -196,7 +203,6 @@ static u32 controller_sdl_rawkey(void) {
             return ret;
         }
     }
-
     return VK_INVALID;
 }
 

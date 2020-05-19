@@ -29,8 +29,9 @@
 #include "course_table.h"
 #include "thread6.h"
 #include "../../include/libc/stdlib.h"
-#include "../pc/configfile.h"
-#define CONFIG_FILE "sm64config.txt"
+#include "../pc/pc_main.h"
+
+#include "pc/cliopts.h"
 
 #define PLAY_MODE_NORMAL 0
 #define PLAY_MODE_PAUSED 2
@@ -176,7 +177,8 @@ s8 D_8032C9E0 = 0;
 u8 unused3[4];
 u8 unused4[2];
 
-
+// For configfile intro skipping
+extern unsigned int configSkipIntro;
 
 
 void basic_update(s16 *arg);
@@ -1030,13 +1032,12 @@ s32 play_mode_paused(void) {
             fade_into_special_warp(0, 0);
             gSavedCourseNum = COURSE_NONE;
         }
-    } // end of gPauseScreenMode == 2 for "EXIT COURSE" option
-
-    if (gPauseScreenMode == 3) { // We should only be getting "int 3" to here
+    } else if (gPauseScreenMode == 3) {
+        // We should only be getting "int 3" to here
         initiate_warp(LEVEL_CASTLE, 1, 0x1F, 0);
         fade_into_special_warp(0, 0);
-        game_exit(); // deinit and config save are in an atexit() handler
-     }
+        game_exit();
+    }
 
     gCameraMovementFlags &= ~CAM_MOVE_PAUSE_SCREEN;
 
@@ -1206,7 +1207,7 @@ s32 init_level(void) {
                 if (gMarioState->action != ACT_UNINITIALIZED) {
                     if (save_file_exists(gCurrSaveFileNum - 1)) {
                         set_mario_action(gMarioState, ACT_IDLE, 0);
-                    } else {
+                    } else if (gCLIOpts.SkipIntro == 0 && configSkipIntro == 0) {
                         set_mario_action(gMarioState, ACT_INTRO_CUTSCENE, 0);
                         val4 = 1;
                     }
@@ -1276,7 +1277,7 @@ s32 lvl_init_from_save_file(UNUSED s16 arg0, s32 levelNum) {
 #endif
     sWarpDest.type = WARP_TYPE_NOT_WARPING;
     sDelayedWarpOp = WARP_OP_NONE;
-    gShouldNotPlayCastleMusic = !save_file_exists(gCurrSaveFileNum - 1);
+    gShouldNotPlayCastleMusic = !save_file_exists(gCurrSaveFileNum - 1) && gCLIOpts.SkipIntro == 0 && configSkipIntro == 0;
 
     gCurrLevelNum = levelNum;
     gCurrCourseNum = COURSE_NONE;

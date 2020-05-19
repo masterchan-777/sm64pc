@@ -5,8 +5,10 @@
 #include <string.h>
 #include <assert.h>
 #include <ctype.h>
+#include <SDL2/SDL.h>
 
 #include "configfile.h"
+#include "gfx/gfx_screen_config.h"
 #include "controller/controller_api.h"
 
 #define ARRAY_LEN(arr) (sizeof(arr) / sizeof(arr[0]))
@@ -33,7 +35,17 @@ struct ConfigOption {
  */
 
 // Video/audio stuff
-bool         configFullscreen   = false;
+ConfigWindow configWindow       = {
+    .x = SDL_WINDOWPOS_CENTERED,
+    .y = SDL_WINDOWPOS_CENTERED,
+    .w = DESIRED_SCREEN_WIDTH,
+    .h = DESIRED_SCREEN_HEIGHT,
+    .vsync = 1,
+    .reset = false,
+    .fullscreen = false,
+    .exiting_fullscreen = false,
+    .settings_changed = false,
+};
 unsigned int configFiltering    = 1;          // 0=force nearest, 1=linear, (TODO) 2=three-point
 unsigned int configMasterVolume = MAX_VOLUME; // 0 - MAX_VOLUME
 
@@ -52,20 +64,28 @@ unsigned int configKeyStickUp[MAX_BINDS]    = { 0x0011,   VK_INVALID, VK_INVALID
 unsigned int configKeyStickDown[MAX_BINDS]  = { 0x001F,   VK_INVALID, VK_INVALID };
 unsigned int configKeyStickLeft[MAX_BINDS]  = { 0x001E,   VK_INVALID, VK_INVALID };
 unsigned int configKeyStickRight[MAX_BINDS] = { 0x0020,   VK_INVALID, VK_INVALID };
+
 #ifdef BETTERCAMERA
 // BetterCamera settings
 unsigned int configCameraXSens   = 50;
 unsigned int configCameraYSens   = 50;
 unsigned int configCameraAggr    = 0;
 unsigned int configCameraPan     = 0;
+unsigned int configCameraDegrade = 10; // 0 - 100%
 bool         configCameraInvertX = false;
 bool         configCameraInvertY = false;
 bool         configEnableCamera  = false;
 bool         configCameraMouse   = false;
 #endif
+unsigned int configSkipIntro     = 0;
 
 static const struct ConfigOption options[] = {
-    {.name = "fullscreen",           .type = CONFIG_TYPE_BOOL, .boolValue = &configFullscreen},
+    {.name = "fullscreen",           .type = CONFIG_TYPE_BOOL, .boolValue = &configWindow.fullscreen},
+    {.name = "window_x",             .type = CONFIG_TYPE_UINT, .uintValue = &configWindow.x},
+    {.name = "window_y",             .type = CONFIG_TYPE_UINT, .uintValue = &configWindow.y},
+    {.name = "window_w",             .type = CONFIG_TYPE_UINT, .uintValue = &configWindow.w},
+    {.name = "window_h",             .type = CONFIG_TYPE_UINT, .uintValue = &configWindow.h},
+    {.name = "vsync",                .type = CONFIG_TYPE_UINT, .uintValue = &configWindow.vsync},
     {.name = "texture_filtering",    .type = CONFIG_TYPE_UINT, .uintValue = &configFiltering},
     {.name = "master_volume",        .type = CONFIG_TYPE_UINT, .uintValue = &configMasterVolume},
     {.name = "key_a",                .type = CONFIG_TYPE_BIND, .uintValue = configKeyA},
@@ -91,7 +111,9 @@ static const struct ConfigOption options[] = {
     {.name = "bettercam_ysens",      .type = CONFIG_TYPE_UINT, .uintValue = &configCameraYSens},
     {.name = "bettercam_aggression", .type = CONFIG_TYPE_UINT, .uintValue = &configCameraAggr},
     {.name = "bettercam_pan_level",  .type = CONFIG_TYPE_UINT, .uintValue = &configCameraPan},
+    {.name = "bettercam_degrade",    .type = CONFIG_TYPE_UINT, .uintValue = &configCameraDegrade},
     #endif
+    {.name = "skip_intro",           .type = CONFIG_TYPE_UINT, .uintValue = &configSkipIntro},    // Add this back!
 };
 
 // Reads an entire line from a file (excluding the newline character) and returns an allocated string

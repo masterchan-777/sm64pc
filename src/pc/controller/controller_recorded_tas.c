@@ -35,7 +35,7 @@ static u32 tas_rawkey(void) {
 }
 
 struct ControllerAPI controller_recorded_tas = {
-    VK_INVALID, // don't care
+    VK_INVALID,
     tas_init,
     tas_read,
     tas_rawkey,

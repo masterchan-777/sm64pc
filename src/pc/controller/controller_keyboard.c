@@ -2,18 +2,17 @@
 #include <ultra64.h>
 
 #include "controller_api.h"
-#include "controller_keyboard.h"
 
 #ifdef TARGET_WEB
 #include "controller_emscripten_keyboard.h"
 #endif
 
 #include "../configfile.h"
-
-#define MAX_KEYBINDS 64
+#include "controller_keyboard.h"
 
 static int keyboard_buttons_down;
 
+#define MAX_KEYBINDS 64
 static int keyboard_mapping[MAX_KEYBINDS][2];
 static int num_keybinds = 0;
 
@@ -22,8 +21,9 @@ static u32 keyboard_lastkey = VK_INVALID;
 static int keyboard_map_scancode(int scancode) {
     int ret = 0;
     for (int i = 0; i < num_keybinds; i++) {
-        if (keyboard_mapping[i][0] == scancode)
+        if (keyboard_mapping[i][0] == scancode) {
             ret |= keyboard_mapping[i][1];
+        }
     }
     return ret;
 }
@@ -38,7 +38,7 @@ bool keyboard_on_key_down(int scancode) {
 bool keyboard_on_key_up(int scancode) {
     int mapped = keyboard_map_scancode(scancode);
     keyboard_buttons_down &= ~mapped;
-    if (keyboard_lastkey == (u32)scancode)
+    if (keyboard_lastkey == (u32) scancode)
         keyboard_lastkey = VK_INVALID;
     return mapped != 0;
 }

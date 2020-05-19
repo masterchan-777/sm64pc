@@ -13,8 +13,24 @@
 #else
 #include <SDL2/SDL.h>
 #define GL_GLEXT_PROTOTYPES 1
+
+#ifdef OSX_BUILD
+#include <SDL2/SDL_opengl.h>
+#else
 #include <SDL2/SDL_opengles2.h>
 #endif
+
+#endif // End of OS-Specific GL defines
+
+#include <stdio.h>
+
+#include "gfx_window_manager_api.h"
+#include "gfx_screen_config.h"
+#include "../pc_main.h"
+#include "../configfile.h"
+#include "../cliopts.h"
+
+#include "src/pc/controller/controller_keyboard.h"
 
 #ifdef TARGET_SWITCH
 // can't include <switch.h> or even <switch/services/applet.h> because
@@ -22,21 +38,22 @@
 extern int appletGetOperationMode(void);
 #endif
 
-#include "gfx_window_manager_api.h"
-#include "gfx_screen_config.h"
-#include "../configfile.h"
+// TODO: figure out if this shit even works
+#ifdef VERSION_EU
+# define FRAMERATE 25
+#else
+# define FRAMERATE 30
+#endif
 
-#include "src/pc/controller/controller_keyboard.h"
+static const Uint32 FRAME_TIME = 1000 / FRAMERATE;
 
 static SDL_Window *wnd;
 static SDL_GLContext ctx = NULL;
 static int inverted_scancode_table[512];
-
-static bool cur_fullscreen;
-static uint32_t cur_width, cur_height;
+static Uint32 frame_start = 0;
 
 const SDL_Scancode windows_scancode_table[] =
-{ 
+{
 	/*	0						1							2							3							4						5							6							7 */
 	/*	8						9							A							B							C						D							E							F */
 	SDL_SCANCODE_UNKNOWN,		SDL_SCANCODE_ESCAPE,		SDL_SCANCODE_1,				SDL_SCANCODE_2,				SDL_SCANCODE_3,			SDL_SCANCODE_4,				SDL_SCANCODE_5,				SDL_SCANCODE_6,			/* 0 */
@@ -59,7 +76,7 @@ const SDL_Scancode windows_scancode_table[] =
 
 	SDL_SCANCODE_UNKNOWN,		SDL_SCANCODE_UNKNOWN,		SDL_SCANCODE_UNKNOWN,		SDL_SCANCODE_UNKNOWN,		SDL_SCANCODE_F13,		SDL_SCANCODE_F14,			SDL_SCANCODE_F15,			SDL_SCANCODE_F16,		/* 6 */
 	SDL_SCANCODE_F17,			SDL_SCANCODE_F18,			SDL_SCANCODE_F19,			SDL_SCANCODE_UNKNOWN,		SDL_SCANCODE_UNKNOWN,	SDL_SCANCODE_UNKNOWN,		SDL_SCANCODE_UNKNOWN,		SDL_SCANCODE_UNKNOWN,	/* 6 */
-	
+
 	SDL_SCANCODE_INTERNATIONAL2,		SDL_SCANCODE_UNKNOWN,		SDL_SCANCODE_UNKNOWN,		SDL_SCANCODE_INTERNATIONAL1,		SDL_SCANCODE_UNKNOWN,	SDL_SCANCODE_UNKNOWN,		SDL_SCANCODE_UNKNOWN,		SDL_SCANCODE_UNKNOWN,	/* 7 */
 	SDL_SCANCODE_UNKNOWN,		SDL_SCANCODE_INTERNATIONAL4,		SDL_SCANCODE_UNKNOWN,		SDL_SCANCODE_INTERNATIONAL5,		SDL_SCANCODE_UNKNOWN,	SDL_SCANCODE_INTERNATIONAL3,		SDL_SCANCODE_UNKNOWN,		SDL_SCANCODE_UNKNOWN	/* 7 */
 };
@@ -86,18 +103,43 @@ const SDL_Scancode scancode_rmapping_nonextended[][2] = {
     {SDL_SCANCODE_KP_MULTIPLY, SDL_SCANCODE_PRINTSCREEN}
 };
 
-static void gfx_sdl_set_fullscreen(bool fullscreen) {
-    if (fullscreen == cur_fullscreen) return;
+#define IS_FULLSCREEN (SDL_GetWindowFlags(wnd) & SDL_WINDOW_FULLSCREEN_DESKTOP)
 
-    if (fullscreen) {
+static void gfx_sdl_set_fullscreen() {
+    if (configWindow.fullscreen == IS_FULLSCREEN)
+        return;
+    if (configWindow.fullscreen) {
         SDL_SetWindowFullscreen(wnd, SDL_WINDOW_FULLSCREEN_DESKTOP);
         SDL_ShowCursor(SDL_DISABLE);
     } else {
         SDL_SetWindowFullscreen(wnd, 0);
         SDL_ShowCursor(SDL_ENABLE);
+        configWindow.exiting_fullscreen = true;
+    }
+}
+
+static void gfx_sdl_reset_dimension_and_pos() {
+    if (configWindow.exiting_fullscreen) {
+        configWindow.exiting_fullscreen = false;
+    } else if (configWindow.reset) {
+        configWindow.x = SDL_WINDOWPOS_CENTERED;
+        configWindow.y = SDL_WINDOWPOS_CENTERED;
+        configWindow.w = DESIRED_SCREEN_WIDTH;
+        configWindow.h = DESIRED_SCREEN_HEIGHT;
+        configWindow.reset = false;
+
+        if (IS_FULLSCREEN) {
+            configWindow.fullscreen = false;
+            return;
+        }
+    } else if (!configWindow.settings_changed) {
+        return;
     }
 
-    cur_fullscreen = fullscreen;
+    configWindow.settings_changed = false;
+    SDL_SetWindowSize(wnd, configWindow.w, configWindow.h);
+    SDL_SetWindowPosition(wnd, configWindow.x, configWindow.y);
+    SDL_GL_SetSwapInterval(configWindow.vsync); // in case vsync changed
 }
 
 static void gfx_sdl_init(void) {
@@ -108,12 +150,29 @@ static void gfx_sdl_init(void) {
 
     #ifdef USE_GLES
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 2);  // These attributes allow for hardware acceleration on RPis.
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 0); 
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 0);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_ES);
     #endif
 
     //SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1);
     //SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 4);
+
+    #ifdef TARGET_SWITCH
+    configWindow.fullscreen = false;
+    // if docked, set 1920x1080
+    if (appletGetOperationMode() == 1) {
+        configWindow.w = 1920;
+        configWindow.h = 1080;
+    } else {
+        configWindow.w = 1280;
+        configWindow.h = 720;
+    }
+    #else
+    if (gCLIOpts.FullScreen == 1)
+        configWindow.fullscreen = true;
+    else if (gCLIOpts.FullScreen == 2)
+        configWindow.fullscreen = false;
+    #endif
 
     const char* window_title = 
     #ifndef USE_GLES
@@ -122,35 +181,16 @@ static void gfx_sdl_init(void) {
     "Super Mario 64 PC port (OpenGL_ES2)";
     #endif
 
-    Uint32 window_flags = SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE;
-    int width, height;
+    wnd = SDL_CreateWindow(
+        window_title,
+        configWindow.x, configWindow.y, configWindow.w, configWindow.h,
+        SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE
+    );
+    ctx = SDL_GL_CreateContext(wnd);
 
-    #ifdef TARGET_SWITCH
-    // if docked, set 1920x1080
-    if (appletGetOperationMode() == 1) {
-        width = 1920;
-        height = 1080;
-    } else {
-        width = 1280;
-        height = 720;
-    }
-    #else
-    width = DESIRED_SCREEN_WIDTH;
-    height = DESIRED_SCREEN_HEIGHT;
-    #endif
+    SDL_GL_SetSwapInterval(configWindow.vsync);
 
-    if (configFullscreen) {
-        window_flags |= SDL_WINDOW_FULLSCREEN_DESKTOP;
-        SDL_ShowCursor(SDL_DISABLE);
-    } else {
-        SDL_ShowCursor(SDL_ENABLE);
-    }
-
-    wnd = SDL_CreateWindow(window_title, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
-            width, height, window_flags);
-
-    SDL_GL_CreateContext(wnd);
-    SDL_GL_SetSwapInterval(1); // We have a double buffered GL context, it makes no sense to want tearing.
+    gfx_sdl_set_fullscreen();
 
     for (size_t i = 0; i < sizeof(windows_scancode_table) / sizeof(SDL_Scancode); i++) {
         inverted_scancode_table[windows_scancode_table[i]] = i;
@@ -167,15 +207,13 @@ static void gfx_sdl_init(void) {
 }
 
 static void gfx_sdl_main_loop(void (*run_one_game_iter)(void)) {
-    int t;
+    Uint32 t;
     while (1) {
         t = SDL_GetTicks();
         run_one_game_iter();
         t = SDL_GetTicks() - t;
-
-        if (t < 1000 / 30) {
-            SDL_Delay ((1000 / 30) - t);
-        }
+        if (t < FRAME_TIME && configWindow.vsync <= 1)
+            SDL_Delay(FRAME_TIME - t);
     }
 }
 
@@ -197,9 +235,9 @@ static void gfx_sdl_onkeydown(int scancode) {
     const Uint8 *state = SDL_GetKeyboardState(NULL);
 
     if (state[SDL_SCANCODE_LALT] && state[SDL_SCANCODE_RETURN])
-        configFullscreen = !configFullscreen;
-    else if (state[SDL_SCANCODE_ESCAPE] && configFullscreen)
-        configFullscreen = false;
+        configWindow.fullscreen = !configWindow.fullscreen;
+    else if (state[SDL_SCANCODE_ESCAPE] && configWindow.fullscreen)
+        configWindow.fullscreen = false;
 }
 
 static void gfx_sdl_onkeyup(int scancode) {
@@ -219,16 +257,32 @@ static void gfx_sdl_handle_events(void) {
                 gfx_sdl_onkeyup(event.key.keysym.scancode);
                 break;
 #endif
+            case SDL_WINDOWEVENT: // TODO: Check if this makes sense to be included in the Web build
+                if (!(IS_FULLSCREEN || configWindow.exiting_fullscreen)) {
+                    switch (event.window.event) {
+                        case SDL_WINDOWEVENT_MOVED:
+                            configWindow.x = event.window.data1;
+                            configWindow.y = event.window.data2;
+                            break;
+                        case SDL_WINDOWEVENT_SIZE_CHANGED:
+                            configWindow.w = event.window.data1;
+                            configWindow.h = event.window.data2;
+                            break;
+                    }
+                }
+                break;
             case SDL_QUIT:
-                exit(0);
+                game_exit();
+                break;
         }
     }
-    // just check if the fullscreen value has changed and toggle fullscreen if it has
-    if (configFullscreen != cur_fullscreen)
-        gfx_sdl_set_fullscreen(configFullscreen);
+
+    gfx_sdl_reset_dimension_and_pos();
+    gfx_sdl_set_fullscreen();
 }
 
 static bool gfx_sdl_start_frame(void) {
+    frame_start = SDL_GetTicks();
     return true;
 }
 

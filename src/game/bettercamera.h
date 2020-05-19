@@ -29,6 +29,7 @@ enum newcam_flagvalues
 extern void newcam_init_settings(void);
 extern void newcam_diagnostics(void);
 
+
 extern u8 newcam_sensitivityX; //How quick the camera works.
 extern u8 newcam_sensitivityY;
 extern u8 newcam_invertX;

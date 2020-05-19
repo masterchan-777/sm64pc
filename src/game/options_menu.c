@@ -16,6 +16,9 @@
 #include "game/game_init.h"
 #include "game/ingame_menu.h"
 #include "game/options_menu.h"
+#include "pc/pc_main.h"
+#include "pc/cliopts.h"
+#include "pc/cheats.h"
 #include "pc/configfile.h"
 #include "pc/controller/controller_api.h"
 
@@ -48,6 +51,8 @@ static const u8 menuStr[][32] = {
     { TEXT_OPT_VIDEO },
     { TEXT_OPT_AUDIO },
     { TEXT_EXIT_GAME },
+    { TEXT_OPT_CHEATS },
+
 };
 
 static const u8 optsCameraStr[][32] = {
@@ -59,6 +64,7 @@ static const u8 optsCameraStr[][32] = {
     { TEXT_OPT_CAMP },
     { TEXT_OPT_ANALOGUE },
     { TEXT_OPT_MOUSE },
+    { TEXT_OPT_CAMD },
 };
 
 static const u8 optsVideoStr[][32] = {
@@ -66,10 +72,22 @@ static const u8 optsVideoStr[][32] = {
     { TEXT_OPT_TEXFILTER },
     { TEXT_OPT_NEAREST },
     { TEXT_OPT_LINEAR },
+    { TEXT_RESET_WINDOW },
+    { TEXT_OPT_VSYNC },
+    { TEXT_OPT_DOUBLE },
 };
 
 static const u8 optsAudioStr[][32] = {
     { TEXT_OPT_MVOLUME },
+};
+
+static const u8 optsCheatsStr[][64] = {
+    { TEXT_OPT_CHEAT1 },
+    { TEXT_OPT_CHEAT2 },
+    { TEXT_OPT_CHEAT3 },
+    { TEXT_OPT_CHEAT4 },
+    { TEXT_OPT_CHEAT5 },
+    { TEXT_OPT_CHEAT6 },
 };
 
 static const u8 bindStr[][32] = {
@@ -94,6 +112,12 @@ static const u8 bindStr[][32] = {
 static const u8 *filterChoices[] = {
     optsVideoStr[2],
     optsVideoStr[3],
+};
+
+static const u8 *vsyncChoices[] = {
+    toggleStr[0],
+    toggleStr[1],
+    optsVideoStr[6],
 };
 
 enum OptType {
@@ -159,7 +183,15 @@ struct SubMenu {
 /* button action functions */
 
 static void optmenu_act_exit(UNUSED struct Option *self, s32 arg) {
-    if (!arg) exit(0); // only exit on A press and not directions
+    if (!arg) game_exit(); // only exit on A press and not directions
+}
+
+static void optvideo_reset_window(UNUSED struct Option *self, s32 arg) {
+    if (!arg) {
+        // Restrict reset to A press and not directions
+        configWindow.reset = true;
+        configWindow.settings_changed = true;
+    }
 }
 
 /* submenu option lists */
@@ -174,6 +206,7 @@ static struct Option optsCamera[] = {
     DEF_OPT_SCROLL( optsCameraStr[1], &configCameraYSens, 10, 250, 1 ),
     DEF_OPT_SCROLL( optsCameraStr[4], &configCameraAggr, 0, 100, 1 ),
     DEF_OPT_SCROLL( optsCameraStr[5], &configCameraPan, 0, 100, 1 ),
+    DEF_OPT_SCROLL( optsCameraStr[8], &configCameraDegrade, 0, 100, 1 ),
 };
 #endif
 
@@ -195,14 +228,24 @@ static struct Option optsControls[] = {
 };
 
 static struct Option optsVideo[] = {
-#ifndef TARGET_SWITCH
-    DEF_OPT_TOGGLE( optsVideoStr[0], &configFullscreen ),
-#endif
+    DEF_OPT_TOGGLE( optsVideoStr[0], &configWindow.fullscreen ),
+    DEF_OPT_CHOICE( optsVideoStr[5], &configWindow.vsync, vsyncChoices ),
     DEF_OPT_CHOICE( optsVideoStr[1], &configFiltering, filterChoices ),
+    DEF_OPT_BUTTON( optsVideoStr[4], optvideo_reset_window ),
 };
 
 static struct Option optsAudio[] = {
     DEF_OPT_SCROLL( optsAudioStr[0], &configMasterVolume, 0, MAX_VOLUME, 1 ),
+};
+
+static struct Option optsCheats[] = {
+    DEF_OPT_TOGGLE( optsCheatsStr[0], &Cheats.EnableCheats ),
+    DEF_OPT_TOGGLE( optsCheatsStr[1], &Cheats.MoonJump ),
+    DEF_OPT_TOGGLE( optsCheatsStr[2], &Cheats.GodMode ),
+    DEF_OPT_TOGGLE( optsCheatsStr[3], &Cheats.InfiniteLives ),
+    DEF_OPT_TOGGLE( optsCheatsStr[4], &Cheats.SuperSpeed ),
+    DEF_OPT_TOGGLE( optsCheatsStr[5], &Cheats.Responsive ),
+
 };
 
 /* submenu definitions */
@@ -213,6 +256,7 @@ static struct SubMenu menuCamera   = DEF_SUBMENU( menuStr[4], optsCamera );
 static struct SubMenu menuControls = DEF_SUBMENU( menuStr[5], optsControls );
 static struct SubMenu menuVideo    = DEF_SUBMENU( menuStr[6], optsVideo );
 static struct SubMenu menuAudio    = DEF_SUBMENU( menuStr[7], optsAudio );
+static struct SubMenu menuCheats   = DEF_SUBMENU( menuStr[9], optsCheats );
 
 /* main options menu definition */
 
@@ -224,6 +268,8 @@ static struct Option optsMain[] = {
     DEF_OPT_SUBMENU( menuStr[6], &menuVideo ),
     DEF_OPT_SUBMENU( menuStr[7], &menuAudio ),
     DEF_OPT_BUTTON ( menuStr[8], optmenu_act_exit ),
+    // NOTE: always keep cheats the last option here because of the half-assed way I toggle them
+    DEF_OPT_SUBMENU( menuStr[9], &menuCheats )
 };
 
 static struct SubMenu menuMain = DEF_SUBMENU( menuStr[3], optsMain );
@@ -413,6 +459,17 @@ void optmenu_toggle(void) {
         #ifndef nosound
         play_sound(SOUND_MENU_CHANGE_SELECT, gDefaultSoundArgs);
         #endif
+
+        // HACK: hide the last option in main if cheats are disabled
+        menuMain.numOpts = sizeof(optsMain) / sizeof(optsMain[0]);
+        if (!Cheats.EnableCheats) {
+            menuMain.numOpts--;
+            if (menuMain.select >= menuMain.numOpts) {
+                menuMain.select = 0; // don't bother
+                menuMain.scroll = 0;
+            }
+        }
+
         currentMenu = &menuMain;
         optmenu_open = 1;
     } else {
@@ -424,7 +481,7 @@ void optmenu_toggle(void) {
         newcam_init_settings(); // load bettercam settings from config vars
         #endif
         controller_reconfigure(); // rebind using new config values
-        configfile_save(CONFIG_FILE);
+        configfile_save(gCLIOpts.ConfigFile);
     }
 }
 
