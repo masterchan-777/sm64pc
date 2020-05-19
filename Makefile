@@ -444,7 +444,7 @@ ifeq ($(TARGET_SWITCH),1)
   NXARCH := -march=armv8-a+crc+crypto -mtune=cortex-a57 -mtp=soft -fPIC -ftls-model=local-exec
   APP_TITLE := Super Mario 64
   APP_AUTHOR := Nintendo, n64decomp team, sm64pc team
-  APP_VERSION := 4.0.1
+  APP_VERSION := 4.0.2
   APP_ICON := ./sm64_icon.jpg
   INCLUDE_CFLAGS += -isystem$(LIBNX)/include -I$(PORTLIBS)/include
   OPT_FLAGS := -O2
