@@ -17131,7 +17131,7 @@ _ACEOF
 
 fi
 
-ac_config_files="$ac_config_files audiofile.spec audiofile.pc audiofile-uninstalled.pc sfcommands/Makefile test/Makefile gtest/Makefile examples/Makefile libaudiofile/Makefile libaudiofile/alac/Makefile libaudiofile/modules/Makefile docs/Makefile Makefile"
+ac_config_files="$ac_config_files  audiofile.spec audiofile.pc audiofile-uninstalled.pc sfcommands/Makefile test/Makefile gtest/Makefile examples/Makefile libaudiofile/Makefile libaudiofile/alac/Makefile libaudiofile/modules/Makefile docs/Makefile Makefile"
 
 cat >confcache <<\_ACEOF
 # This file is a shell script that caches the results of configure
@@ -18259,17 +18259,18 @@ do
     "config.h") CONFIG_HEADERS="$CONFIG_HEADERS config.h" ;;
     "depfiles") CONFIG_COMMANDS="$CONFIG_COMMANDS depfiles" ;;
     "libtool") CONFIG_COMMANDS="$CONFIG_COMMANDS libtool" ;;
-    "audiofile.spec") CONFIG_FILES="$CONFIG_FILES audiofile.spec" ;;
-    "audiofile.pc") CONFIG_FILES="$CONFIG_FILES audiofile.pc" ;;
-    "audiofile-uninstalled.pc") CONFIG_FILES="$CONFIG_FILES audiofile-uninstalled.pc" ;;
-    "sfcommands/Makefile") CONFIG_FILES="$CONFIG_FILES sfcommands/Makefile" ;;
-    "test/Makefile") CONFIG_FILES="$CONFIG_FILES test/Makefile" ;;
-    "gtest/Makefile") CONFIG_FILES="$CONFIG_FILES gtest/Makefile" ;;
-    "examples/Makefile") CONFIG_FILES="$CONFIG_FILES examples/Makefile" ;;
-    "libaudiofile/Makefile") CONFIG_FILES="$CONFIG_FILES libaudiofile/Makefile" ;;
-    "libaudiofile/alac/Makefile") CONFIG_FILES="$CONFIG_FILES libaudiofile/alac/Makefile" ;;
-    "libaudiofile/modules/Makefile") CONFIG_FILES="$CONFIG_FILES libaudiofile/modules/Makefile" ;;
-    "docs/Makefile") CONFIG_FILES="$CONFIG_FILES docs/Makefile" ;;
+    "") CONFIG_FILES="$CONFIG_FILES " ;;
+    "audiofile.spec") CONFIG_FILES="$CONFIG_FILES audiofile.spec" ;;
+    "audiofile.pc") CONFIG_FILES="$CONFIG_FILES audiofile.pc" ;;
+    "audiofile-uninstalled.pc") CONFIG_FILES="$CONFIG_FILES audiofile-uninstalled.pc" ;;
+    "sfcommands/Makefile") CONFIG_FILES="$CONFIG_FILES sfcommands/Makefile" ;;
+    "test/Makefile") CONFIG_FILES="$CONFIG_FILES test/Makefile" ;;
+    "gtest/Makefile") CONFIG_FILES="$CONFIG_FILES gtest/Makefile" ;;
+    "examples/Makefile") CONFIG_FILES="$CONFIG_FILES examples/Makefile" ;;
+    "libaudiofile/Makefile") CONFIG_FILES="$CONFIG_FILES libaudiofile/Makefile" ;;
+    "libaudiofile/alac/Makefile") CONFIG_FILES="$CONFIG_FILES libaudiofile/alac/Makefile" ;;
+    "libaudiofile/modules/Makefile") CONFIG_FILES="$CONFIG_FILES libaudiofile/modules/Makefile" ;;
+    "docs/Makefile") CONFIG_FILES="$CONFIG_FILES docs/Makefile" ;;
     "Makefile") CONFIG_FILES="$CONFIG_FILES Makefile" ;;
 
   *) as_fn_error $? "invalid argument: \`$ac_config_target'" "$LINENO" 5;;
