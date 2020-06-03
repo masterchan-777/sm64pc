@@ -67,9 +67,7 @@ unsigned int configKeyStickDown[MAX_BINDS]  = { 0x001F,   VK_INVALID, VK_INVALID
 unsigned int configKeyStickLeft[MAX_BINDS]  = { 0x001E,   VK_INVALID, VK_INVALID };
 unsigned int configKeyStickRight[MAX_BINDS] = { 0x0020,   VK_INVALID, VK_INVALID };
 unsigned int configStickDeadzone = 16; // 16*DEADZONE_STEP=4960 (the original default deadzone)
-unsigned int configRumbleStrength = 50;
-
-#ifdef EXTERNAL_TEXTURES
+#ifdef EXTERNAL_DATA
 bool configPrecacheRes = false;
 #endif
 #ifdef BETTERCAMERA
@@ -110,9 +108,8 @@ static const struct ConfigOption options[] = {
     {.name = "key_stickdown",        .type = CONFIG_TYPE_BIND, .uintValue = configKeyStickDown},
     {.name = "key_stickleft",        .type = CONFIG_TYPE_BIND, .uintValue = configKeyStickLeft},
     {.name = "key_stickright",       .type = CONFIG_TYPE_BIND, .uintValue = configKeyStickRight},
-	{.name = "stick_deadzone",       .type = CONFIG_TYPE_UINT, .uintValue = &configStickDeadzone},
-	{.name = "rumble_strength",      .type = CONFIG_TYPE_UINT, .uintValue = &configRumbleStrength},
-    #ifdef EXTERNAL_TEXTURES
+    {.name = "stick_deadzone",       .type = CONFIG_TYPE_UINT, .uintValue = &configStickDeadzone},
+    #ifdef EXTERNAL_DATA
     {.name = "precache",             .type = CONFIG_TYPE_BOOL, .boolValue = &configPrecacheRes},
     #endif
     #ifdef BETTERCAMERA
@@ -234,7 +231,7 @@ void configfile_load(const char *filename) {
     // Go through each line in the file
     while ((line = read_file_line(file)) != NULL) {
         char *p = line;
-        char *tokens[2];
+        char *tokens[1 + MAX_BINDS];
         int numTokens;
 
         while (isspace(*p))
@@ -243,7 +240,7 @@ void configfile_load(const char *filename) {
         if (!*p || *p == '#') // comment or empty line
             continue;
 
-        numTokens = tokenize_string(p, 2, tokens);
+        numTokens = tokenize_string(p, sizeof(tokens) / sizeof(tokens[0]), tokens);
         if (numTokens != 0) {
             if (numTokens >= 2) {
                 const struct ConfigOption *option = NULL;
@@ -277,7 +274,9 @@ void configfile_load(const char *filename) {
                         default:
                             assert(0); // bad type
                     }
-                    printf("option: '%s', value: '%s'\n", tokens[0], tokens[1]);
+                    printf("option: '%s', value:", tokens[0]);
+                    for (int i = 1; i < numTokens; ++i) printf(" '%s'", tokens[i]);
+                    printf("\n");
                 }
             } else
                 puts("error: expected value");

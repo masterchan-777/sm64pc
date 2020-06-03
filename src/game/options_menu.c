@@ -55,7 +55,8 @@ static const u8 menuStr[][32] = {
     { TEXT_OPT_VIDEO },
     { TEXT_OPT_AUDIO },
     { TEXT_EXIT_GAME },
-	{ TEXT_OPT_CHEATS },
+    { TEXT_OPT_CHEATS },
+
 };
 
 static const u8 optsCameraStr[][32] = {
@@ -114,8 +115,7 @@ static const u8 bindStr[][32] = {
     { TEXT_BIND_DOWN },
     { TEXT_BIND_LEFT },
     { TEXT_BIND_RIGHT },
-	{ TEXT_OPT_DEADZONE },
-	{ TEXT_OPT_RUMBLE },
+    { TEXT_OPT_DEADZONE },
 };
 
 static const u8 *filterChoices[] = {
@@ -234,14 +234,14 @@ static struct Option optsControls[] = {
     DEF_OPT_BIND( bindStr[13], configKeyStickDown ),
     DEF_OPT_BIND( bindStr[14], configKeyStickLeft ),
     DEF_OPT_BIND( bindStr[15], configKeyStickRight ),
-	// max deadzone is 31000; this is less than the max range of ~32768, but this
+    // max deadzone is 31000; this is less than the max range of ~32768, but this
     // way, the player can't accidentally lock themselves out of using the stick
     DEF_OPT_SCROLL( bindStr[16], &configStickDeadzone, 0, 100, 1 ),
-    DEF_OPT_SCROLL( bindStr[17], &configRumbleStrength, 0, 100, 1),
 };
 
-static struct Option optsVideo[] = { //disable unneeded display options for Switch
-	#ifndef TARGET_SWITCH
+static struct Option optsVideo[] = {
+	// disable some display options for Switch
+	#ifndef TARGET_SWITCH   
     DEF_OPT_TOGGLE( optsVideoStr[0], &configWindow.fullscreen ),
     DEF_OPT_CHOICE( optsVideoStr[5], &configWindow.vsync, vsyncChoices ),
 	#endif
@@ -288,12 +288,10 @@ static struct Option optsMain[] = {
     DEF_OPT_SUBMENU( menuStr[5], &menuControls ),
     DEF_OPT_SUBMENU( menuStr[6], &menuVideo ),
     DEF_OPT_SUBMENU( menuStr[7], &menuAudio ),
-    DEF_OPT_SUBMENU( menuStr[9], &menuCheats ), // Moved cheats menu up for Switch
+	DEF_OPT_SUBMENU( menuStr[9], &menuCheats ),
     DEF_OPT_BUTTON ( menuStr[8], optmenu_act_exit )
-	/* Moved cheats menu up for Switch
-	// NOTE: always keep cheats the last option here because of the half-assed way I toggle them
-    DEF_OPT_SUBMENU( menuStr[9], &menuCheats )
-	*/
+    // NOTE: always keep cheats the last option here because of the half-assed way I toggle them - changed for the Switch version to always enable the cheats menu.
+    
 };
 
 static struct SubMenu menuMain = DEF_SUBMENU( menuStr[3], optsMain );

@@ -5,6 +5,7 @@
 
 #include "controller_recorded_tas.h"
 #include "controller_keyboard.h"
+
 #include "controller_sdl.h"
 
 // Analog camera movement by Pathétique (github.com/vrmiguel), y0shin and Mors
@@ -29,19 +30,6 @@ s32 osContInit(OSMesgQueue *mq, u8 *controllerBits, OSContStatus *status) {
     return 0;
 }
 
-s32 osMotorStart(void *pfs) {
-    // Since rumble stops by osMotorStop, its duration is not nessecary.
-    return controller_rumble_play(configRumbleStrength / 100.0, 50);
-}
-
-s32 osMotorStop(void *pfs) {
-    return controller_rumble_stop();
-}
-
-u32 osMotorInit(OSMesgQueue *mq, void *pfs, s32 port) {
-    return controller_rumble_init();
-}
-
 s32 osContStartReadData(OSMesgQueue *mesg) {
     return 0;
 }
@@ -55,7 +43,7 @@ void osContGetReadData(OSContPad *pad) {
 #ifdef BETTERCAMERA
     uint32_t magnitude_sq = (uint32_t)(rightx * rightx) + (uint32_t)(righty * righty);
     uint32_t stickDeadzoneActual = configStickDeadzone * DEADZONE_STEP;
-	if (magnitude_sq > (uint32_t)(stickDeadzoneActual * stickDeadzoneActual)) {
+    if (magnitude_sq > (uint32_t)(stickDeadzoneActual * stickDeadzoneActual)) {
         c_rightx = rightx / 0x100;
         int stick_y = -righty / 0x100;
         c_righty = stick_y == 128 ? 127 : stick_y;

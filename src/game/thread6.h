@@ -1,6 +1,7 @@
 #ifndef _THREAD_6_H
 #define _THREAD_6_H
 
+#ifdef VERSION_SH
 
 extern s32 gRumblePakTimer;
 
@@ -19,4 +20,4 @@ extern void rumble_thread_update_vi(void);
 
 #endif
 
-
+#endif

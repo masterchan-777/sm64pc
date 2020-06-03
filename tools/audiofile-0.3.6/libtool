@@ -11879,7 +11879,7 @@ compiler_lib_search_dirs="C:/msys64/mingw64/bin/../lib/gcc/x86_64-w64-mingw32/10
 predep_objects="C:/msys64/mingw64/bin/../lib/gcc/x86_64-w64-mingw32/10.1.0/../../../../x86_64-w64-mingw32/lib/../lib/dllcrt2.o C:/msys64/mingw64/bin/../lib/gcc/x86_64-w64-mingw32/10.1.0/crtbegin.o"
 postdep_objects="C:/msys64/mingw64/bin/../lib/gcc/x86_64-w64-mingw32/10.1.0/crtend.o"
 predeps=""
-postdeps="-lstdc++ -lmingw32 -lgcc_s -lgcc -lmoldname -lmingwex -lmsvcrt -lpthread -ladvapi32 -lshell32 -luser32 -lkernel32 -lmingw32 -lgcc_s -lgcc -lmoldname -lmingwex -lmsvcrt"
+postdeps="-lstdc++ -lmingw32 -lgcc_s -lgcc -lmoldname -lmingwex -lmsvcrt -lkernel32 -lpthread -ladvapi32 -lshell32 -luser32 -lkernel32 -lmingw32 -lgcc_s -lgcc -lmoldname -lmingwex -lmsvcrt -lkernel32"
 
 # The library search path used internally by the compiler when linking
 # a shared library.

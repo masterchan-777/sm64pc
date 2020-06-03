@@ -36,8 +36,7 @@ extern unsigned int configKeyStickDown[];
 extern unsigned int configKeyStickLeft[];
 extern unsigned int configKeyStickRight[];
 extern unsigned int configStickDeadzone;
-extern unsigned int configRumbleStrength;
-#ifdef EXTERNAL_TEXTURES
+#ifdef EXTERNAL_DATA
 extern bool         configPrecacheRes;
 #endif
 #ifdef BETTERCAMERA

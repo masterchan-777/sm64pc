@@ -161,15 +161,15 @@ am__distuninstallcheck_listfiles = $(distuninstallcheck_listfiles) \
   | sed 's|^\./|$(prefix)/|' | grep -v '$(infodir)/dir$$'
 distcleancheck_listfiles = find . -type f -print
 A2X = 
-ACLOCAL = ${SHELL} /c/sm64build/mygit/sm64pc/tools/audiofile-0.3.6/missing --run aclocal-1.11
+ACLOCAL = ${SHELL} /c/sm64build/sm64pc/tools/audiofile-0.3.6/missing --run aclocal-1.11
 AMTAR = $${TAR-tar}
 AR = ar
 ASCIIDOC = 
 AUDIOFILE_VERSION = 0.3.6
 AUDIOFILE_VERSION_INFO = 1:0:0
-AUTOCONF = ${SHELL} /c/sm64build/mygit/sm64pc/tools/audiofile-0.3.6/missing --run autoconf
-AUTOHEADER = ${SHELL} /c/sm64build/mygit/sm64pc/tools/audiofile-0.3.6/missing --run autoheader
-AUTOMAKE = ${SHELL} /c/sm64build/mygit/sm64pc/tools/audiofile-0.3.6/missing --run automake-1.11
+AUTOCONF = ${SHELL} /c/sm64build/sm64pc/tools/audiofile-0.3.6/missing --run autoconf
+AUTOHEADER = ${SHELL} /c/sm64build/sm64pc/tools/audiofile-0.3.6/missing --run autoheader
+AUTOMAKE = ${SHELL} /c/sm64build/sm64pc/tools/audiofile-0.3.6/missing --run automake-1.11
 AWK = gawk
 CC = gcc
 CCDEPMODE = depmode=gcc3
@@ -213,7 +213,7 @@ LIPO =
 LN_S = cp -pR
 LTLIBOBJS = 
 LT_SYS_LIBRARY_PATH = 
-MAKEINFO = ${SHELL} /c/sm64build/mygit/sm64pc/tools/audiofile-0.3.6/missing --run makeinfo
+MAKEINFO = ${SHELL} /c/sm64build/sm64pc/tools/audiofile-0.3.6/missing --run makeinfo
 MANIFEST_TOOL = :
 MKDIR_P = /usr/bin/mkdir -p
 NM = /mingw64/bin/nm -B
@@ -242,10 +242,10 @@ TEST_BIN =
 VALGRIND = 
 VERSION = 0.3.6
 WERROR_CFLAGS = 
-abs_builddir = /c/sm64build/mygit/sm64pc/tools/audiofile-0.3.6
-abs_srcdir = /c/sm64build/mygit/sm64pc/tools/audiofile-0.3.6
-abs_top_builddir = /c/sm64build/mygit/sm64pc/tools/audiofile-0.3.6
-abs_top_srcdir = /c/sm64build/mygit/sm64pc/tools/audiofile-0.3.6
+abs_builddir = /c/sm64build/sm64pc/tools/audiofile-0.3.6
+abs_srcdir = /c/sm64build/sm64pc/tools/audiofile-0.3.6
+abs_top_builddir = /c/sm64build/sm64pc/tools/audiofile-0.3.6
+abs_top_srcdir = /c/sm64build/sm64pc/tools/audiofile-0.3.6
 ac_ct_AR = ar
 ac_ct_CC = gcc
 ac_ct_CXX = g++
@@ -275,7 +275,7 @@ host_vendor = pc
 htmldir = ${docdir}
 includedir = ${prefix}/include
 infodir = ${datarootdir}/info
-install_sh = ${SHELL} /c/sm64build/mygit/sm64pc/tools/audiofile-0.3.6/install-sh
+install_sh = ${SHELL} /c/sm64build/sm64pc/tools/audiofile-0.3.6/install-sh
 libdir = ${exec_prefix}/lib
 libexecdir = ${exec_prefix}/libexec
 localedir = ${datarootdir}/locale
@@ -882,7 +882,7 @@ dist-hook: audiofile.spec
 #		--output-directory ./coverage ./lcov.info
 #	@echo
 #	@echo 'lcov report can be found here:'
-#	@echo 'file:///c/sm64build/mygit/sm64pc/tools/audiofile-0.3.6/coverage/index.html'
+#	@echo 'file:///c/sm64build/sm64pc/tools/audiofile-0.3.6/coverage/index.html'
 #	@echo
 
 #clean-local:
