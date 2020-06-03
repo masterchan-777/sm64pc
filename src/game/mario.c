@@ -1750,7 +1750,7 @@ s32 execute_mario_action(UNUSED struct Object *o) {
         if (Cheats.GodMode)
             gMarioState->health = 0x880;
 
-        if (Cheats.InfiniteLives && gMarioState->numLives < 99)
+        if (Cheats.InfiniteLives && gMarioState->numLives < 100)  //max lives increased to 100
             gMarioState->numLives += 1;
 
         if (Cheats.SuperSpeed && gMarioState->forwardVel > 0)
