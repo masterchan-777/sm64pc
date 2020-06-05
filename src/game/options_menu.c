@@ -482,7 +482,8 @@ void optmenu_toggle(void) {
         play_sound(SOUND_MENU_CHANGE_SELECT, gDefaultSoundArgs);
         #endif
 
-        // HACK: hide the last option in main if cheats are disabled
+        /* This is not needed for Switch since cheats are always enabled
+		// HACK: hide the last option in main if cheats are disabled
         menuMain.numOpts = sizeof(optsMain) / sizeof(optsMain[0]);
         if (!Cheats.EnableCheats) {
             menuMain.numOpts--;
@@ -491,7 +492,7 @@ void optmenu_toggle(void) {
                 menuMain.scroll = 0;
             }
         }
-
+       */
         currentMenu = &menuMain;
         optmenu_open = 1;
         

@@ -48,8 +48,11 @@ TEXTURE_FIX ?= 0
 EXT_OPTIONS_MENU ?= 1
 # Disable text-based save-files by default
 TEXTSAVES ?= 0
-# Load resources from external files
-EXTERNAL_DATA ?= 0
+# Load resources from external files - now enabled by default
+EXTERNAL_DATA ?= 1
+
+# Enable HD models by default
+HD_MODELS ?= 1
 
 # Various workarounds for weird toolchains
 
@@ -481,7 +484,7 @@ ifeq ($(TARGET_SWITCH),1)
   NXARCH := -march=armv8-a+crc+crypto -mtune=cortex-a57 -mtp=soft -fPIC -ftls-model=local-exec
   APP_TITLE := Super Mario 64
   APP_AUTHOR := Nintendo, n64decomp team, sm64pc team
-  APP_VERSION := 5.0.1
+  APP_VERSION := 5.1.0
   APP_ICON := ./sm64_icon.jpg
   INCLUDE_CFLAGS += -isystem$(LIBNX)/include -I$(PORTLIBS)/include
   OPT_FLAGS := -O2
@@ -578,6 +581,12 @@ endif
 ifeq ($(EXT_OPTIONS_MENU),1)
   CC_CHECK += -DEXT_OPTIONS_MENU
   CFLAGS += -DEXT_OPTIONS_MENU
+endif
+
+# Check HD models options
+ifeq ($(HD_MODELS),1)
+  CC_CHECK += -DHD_MODELS
+  CFLAGS += -DHD_MODELS
 endif
 
 # Check for no bzero/bcopy workaround option
@@ -973,6 +982,8 @@ ifeq ($(TARGET_SWITCH), 1)
 %.nro: %.stripped %.nacp
 	@elf2nro $< $@ --nacp=$*.nacp --icon=$(APP_ICON)
 	@echo built ... $(notdir $@)
+	@mkdir -p $(BUILD_DIR)/switch/SM64
+	@$(CP) -r -f $(EXE).nro $(BUILD_DIR)/switch/SM64/sm64.nro
 
 %.nacp:
 	@nacptool --create "$(APP_TITLE)" "$(APP_AUTHOR)" "$(APP_VERSION)" $@ $(NACPFLAGS)
