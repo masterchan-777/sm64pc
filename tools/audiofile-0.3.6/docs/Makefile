@@ -101,11 +101,11 @@ man3dir = $(mandir)/man3
 NROFF = nroff
 MANS = $(dist_man1_MANS) $(dist_man3_MANS)
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
-A2X = 
+A2X = /usr/bin/a2x
 ACLOCAL = ${SHELL} /c/sm64build/sm64pc/tools/audiofile-0.3.6/missing --run aclocal-1.11
 AMTAR = $${TAR-tar}
 AR = ar
-ASCIIDOC = 
+ASCIIDOC = /usr/bin/asciidoc
 AUDIOFILE_VERSION = 0.3.6
 AUDIOFILE_VERSION_INFO = 1:0:0
 AUTOCONF = ${SHELL} /c/sm64build/sm64pc/tools/audiofile-0.3.6/missing --run autoconf
@@ -236,58 +236,58 @@ target_alias =
 top_build_prefix = ../
 top_builddir = ..
 top_srcdir = ..
-#DOCS_TXT_MAN1 = \
-#	sfconvert.1.txt \
-#	sfinfo.1.txt
+DOCS_TXT_MAN1 = \
+	sfconvert.1.txt \
+	sfinfo.1.txt
 
-#DOCS_TXT_MAN3 = \
-#	afCloseFile.3.txt \
-#	afGetFrameCount.3.txt \
-#	afGetFrameSize.3.txt \
-#	afInitAESChannelDataTo.3.txt \
-#	afInitCompression.3.txt \
-#	afInitFileFormat.3.txt \
-#	afInitSampleFormat.3.txt \
-#	afNewFileSetup.3.txt \
-#	afOpenFile.3.txt \
-#	afQuery.3.txt \
-#	afReadFrames.3.txt \
-#	afReadMisc.3.txt \
-#	afSeekFrame.3.txt \
-#	afSetErrorHandler.3.txt \
-#	afSetVirtualSampleFormat.3.txt \
-#	afWriteFrames.3.txt
+DOCS_TXT_MAN3 = \
+	afCloseFile.3.txt \
+	afGetFrameCount.3.txt \
+	afGetFrameSize.3.txt \
+	afInitAESChannelDataTo.3.txt \
+	afInitCompression.3.txt \
+	afInitFileFormat.3.txt \
+	afInitSampleFormat.3.txt \
+	afNewFileSetup.3.txt \
+	afOpenFile.3.txt \
+	afQuery.3.txt \
+	afReadFrames.3.txt \
+	afReadMisc.3.txt \
+	afSeekFrame.3.txt \
+	afSetErrorHandler.3.txt \
+	afSetVirtualSampleFormat.3.txt \
+	afWriteFrames.3.txt
 
-#DOCS_TXT = $(DOCS_TXT_MAN1) $(DOCS_TXT_MAN3)
-#EXTRA_DIST = \
-#	$(DOCS_TXT) \
-#	asciidoc.conf
+DOCS_TXT = $(DOCS_TXT_MAN1) $(DOCS_TXT_MAN3)
+EXTRA_DIST = \
+	$(DOCS_TXT) \
+	asciidoc.conf
 
-#DOCS_MAN1 = $(DOCS_TXT_MAN1:.txt=)
-#DOCS_MAN3 = $(DOCS_TXT_MAN3:.txt=)
-#DOCS_MAN3_EXTRA = \
-#	afInitAESChannelData.3 \
-#	afInitByteOrder.3 \
-#	afInitChannels.3 \
-#	afInitRate.3 \
-#	afGetDataOffset.3 \
-#	afGetTrackBytes.3 \
-#	afQueryLong.3 \
-#	afQueryDouble.3 \
-#	afQueryPointer.3 \
-#	afSeekMisc.3 \
-#	afSetVirtualByteOrder.3 \
-#	afSetVirtualChannels.3 \
-#	afSetVirtualPCMMapping.3 \
-#	afTellFrame.3 \
-#	afWriteMisc.3
+DOCS_MAN1 = $(DOCS_TXT_MAN1:.txt=)
+DOCS_MAN3 = $(DOCS_TXT_MAN3:.txt=)
+DOCS_MAN3_EXTRA = \
+	afInitAESChannelData.3 \
+	afInitByteOrder.3 \
+	afInitChannels.3 \
+	afInitRate.3 \
+	afGetDataOffset.3 \
+	afGetTrackBytes.3 \
+	afQueryLong.3 \
+	afQueryDouble.3 \
+	afQueryPointer.3 \
+	afSeekMisc.3 \
+	afSetVirtualByteOrder.3 \
+	afSetVirtualChannels.3 \
+	afSetVirtualPCMMapping.3 \
+	afTellFrame.3 \
+	afWriteMisc.3
 
-#DOCS_HTML = $(DOCS_TXT:.txt=.html)
-#dist_man1_MANS = $(DOCS_MAN1)
-#dist_man3_MANS = $(DOCS_MAN3) $(DOCS_MAN3_EXTRA)
-#ASCIIDOCFLAGS = -arevnumber=$(VERSION) -amansource="Audio File Library"
-#A2XFLAGS = $(ASCIIDOCFLAGS) -d manpage -f manpage
-#CLEANFILES = *.1 *.3 *.html
+DOCS_HTML = $(DOCS_TXT:.txt=.html)
+dist_man1_MANS = $(DOCS_MAN1)
+dist_man3_MANS = $(DOCS_MAN3) $(DOCS_MAN3_EXTRA)
+ASCIIDOCFLAGS = -arevnumber=$(VERSION) -amansource="Audio File Library"
+A2XFLAGS = $(ASCIIDOCFLAGS) -d manpage -f manpage
+CLEANFILES = *.1 *.3 *.html
 all: all-am
 
 .SUFFIXES:
@@ -509,7 +509,7 @@ dvi: dvi-am
 
 dvi-am:
 
-html: html-am
+#html: html-am
 
 html-am:
 
@@ -581,16 +581,16 @@ uninstall-man: uninstall-man1 uninstall-man3
 	uninstall-man3
 
 
-#%.html: %.txt
-#	$(ASCIIDOC) $(ASCIIDOCFLAGS) -b html4 -d manpage -f asciidoc.conf $<
+%.html: %.txt
+	$(ASCIIDOC) $(ASCIIDOCFLAGS) -b html4 -d manpage -f asciidoc.conf $<
 
-#%.1: %.1.txt
-#	$(A2X) $(A2XFLAGS) --asciidoc-opts="-f asciidoc.conf" $<
+%.1: %.1.txt
+	$(A2X) $(A2XFLAGS) --asciidoc-opts="-f asciidoc.conf" $<
 
-#%.3: %.3.txt
-#	$(A2X) $(A2XFLAGS) --asciidoc-opts="-f asciidoc.conf" $<
+%.3: %.3.txt
+	$(A2X) $(A2XFLAGS) --asciidoc-opts="-f asciidoc.conf" $<
 
-#html: $(DOCS_HTML)
+html: $(DOCS_HTML)
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.

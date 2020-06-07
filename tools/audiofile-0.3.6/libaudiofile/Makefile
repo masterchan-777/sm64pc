@@ -188,11 +188,11 @@ am__relativize = \
     dir1=`echo "$$dir1" | sed -e "$$sed_rest"`; \
   done; \
   reldir="$$dir2"
-A2X = 
+A2X = /usr/bin/a2x
 ACLOCAL = ${SHELL} /c/sm64build/sm64pc/tools/audiofile-0.3.6/missing --run aclocal-1.11
 AMTAR = $${TAR-tar}
 AR = ar
-ASCIIDOC = 
+ASCIIDOC = /usr/bin/asciidoc
 AUDIOFILE_VERSION = 0.3.6
 AUDIOFILE_VERSION_INFO = 1:0:0
 AUTOCONF = ${SHELL} /c/sm64build/sm64pc/tools/audiofile-0.3.6/missing --run autoconf

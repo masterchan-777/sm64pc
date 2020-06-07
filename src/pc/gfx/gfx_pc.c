@@ -1764,7 +1764,7 @@ void gfx_init(struct GfxWindowManagerAPI *wapi, struct GfxRenderingAPI *rapi) {
     #ifdef EXTERNAL_DATA
     // preload all textures if needed
     if (configPrecacheRes) {
-		printf("Precaching textures from `%s`\n", sys_data_path());
+        printf("Precaching textures from `%s`\n", sys_data_path());
         sys_dir_walk(sys_data_path(), preload_texture, true);
     }
     #endif
